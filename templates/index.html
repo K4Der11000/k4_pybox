@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - VM Browser</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #001f3f;
+            color: #fff;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: yellow;
+            text-shadow: 0 0 5px cyan;
+        }
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        a, button {
+            background-color: #0074D9;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        a:hover, button:hover {
+            background-color: #FFDC00;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>KADER11000 - VM CONTROL PANEL</h1>
+    <div class="actions">
+        <form action="/run" method="post" enctype="multipart/form-data">
+            <input type="file" name="iso_file" accept=".iso" required>
+            <input type="number" name="ram_mb" placeholder="RAM (MB)" value="512">
+            <button type="submit">Run ISO</button>
+        </form>
+        <br>
+        <a href="/install_v86">Install v86</a>
+        <a href="/delete_v86">Delete v86</a>
+        <a href="/browser">Open Browser Mode</a>
+        <a href="/logout">Logout</a>
+    </div>
+</body>
+</html>
