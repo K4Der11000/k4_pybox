@@ -2,15 +2,26 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 import os
 import shutil
 import requests
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'secret-key'  # يمكنك تغييره
+app.secret_key = 'secret-key'  # يُفضل تغييره إلى قيمة عشوائية طويلة
 
+# إعدادات المسارات
 UPLOAD_FOLDER = 'uploads'
 STATIC_V86 = os.path.join('static', 'v86')
+ALLOWED_EXTENSIONS = {'iso'}
+MAX_CONTENT_LENGTH = 1 * 1024 * 1024 * 1024  # 1 GB max upload
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# كلمة المرور للدخول
 PASSWORD = "kader11000"
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -42,18 +53,19 @@ def run():
     iso = request.files.get('iso_file')
     ram_mb = request.form.get('ram_mb', 256)
 
-    if not iso or not iso.filename.endswith('.iso'):
+    if not iso or not allowed_file(iso.filename):
         flash("Please select a valid ISO file.")
         return redirect(url_for('index'))
 
-    iso_path = os.path.join(UPLOAD_FOLDER, iso.filename)
+    filename = secure_filename(iso.filename)
+    iso_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     iso.save(iso_path)
 
-    return render_template("run_vm.html", iso_file=iso.filename, ram_mb=ram_mb)
+    return render_template("run_vm.html", iso_file=filename, ram_mb=ram_mb)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/install_v86')
 def install_v86():
@@ -69,9 +81,14 @@ def install_v86():
     for path, url in files.items():
         local_path = os.path.join(STATIC_V86, path)
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        r = requests.get(url)
-        with open(local_path, 'wb') as f:
-            f.write(r.content)
+        try:
+            r = requests.get(url)
+            r.raise_for_status()
+            with open(local_path, 'wb') as f:
+                f.write(r.content)
+        except Exception as e:
+            flash(f"Error downloading {path}: {e}")
+            return redirect(url_for('index'))
 
     flash("v86 Emulator installed successfully!")
     return redirect(url_for('index'))
