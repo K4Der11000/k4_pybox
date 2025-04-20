@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Running VM</title>
+</head>
+<body style="margin:0; background:black;">
+    <script src="{{ url_for('static', filename='v86/v86.js') }}"></script>
+    <div id="emulator" style="width:100vw; height:100vh;"></div>
+    <script>
+        const emulator = new V86Starter({
+            wasm_path: "{{ url_for('static', filename='v86/v86.wasm') }}",
+            bios: { url: "{{ url_for('static', filename='v86/bios/seabios.bin') }}" },
+            vga_bios: { url: "{{ url_for('static', filename='v86/bios/vgabios.bin') }}" },
+            cdrom: { url: "{{ url_for('uploaded_file', filename=iso_file) }}" },
+            memory_size: {{ int(ram_mb) * 1024 * 1024 }},
+            autostart: true
+        });
+    </script>
+</body>
+</html>
