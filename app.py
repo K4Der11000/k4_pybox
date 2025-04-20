@@ -10,7 +10,7 @@ UPLOAD_FOLDER = 'uploads'
 STATIC_V86 = os.path.join('static', 'v86')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-PASSWORD = "kader1000"
+PASSWORD = "kader11000"
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
